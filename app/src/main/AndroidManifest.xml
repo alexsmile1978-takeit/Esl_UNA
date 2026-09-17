@@ -1,56 +1,38 @@
-package com.mrg.eslscanner.data
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-import android.content.Intent
-import android.nfc.NdefMessage
-import android.nfc.NdefRecord
-import android.nfc.NfcAdapter
-import android.nfc.Tag
-import android.nfc.tech.Ndef
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="true" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
 
-/**
- * Shared NFC tag parsing. Extracts the NDEF text record most Hanshow ESL
- * price tags carry (e.g. "C0-BF-3E-91"), falling back to reading the tag's
- * own NDEF data directly, then finally its raw serial number.
- */
-object NfcReader {
+    <application
+        android:name=".EslScannerApp"
+        android:allowBackup="false"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:label="ESL Scanner"
+        android:theme="@style/Theme.EslScanner"
+        android:usesCleartextTraffic="true">
 
-    fun readValue(intent: Intent): String? {
-        val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
-        val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-        val ndefMessage = rawMessages?.firstOrNull() as? NdefMessage
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-        val fromNdef = ndefMessage?.records?.firstNotNullOfOrNull { parseTextRecord(it) }
-        if (fromNdef != null) return fromNdef
+        <activity
+            android:name=".ui.ScannerActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity android:name=".ui.SettingsActivity" android:exported="false" />
+        <activity android:name=".ui.PendingActivity" android:exported="false" />
 
-        tag?.let { t ->
-            try {
-                Ndef.get(t)?.let { ndef ->
-                    ndef.connect()
-                    val message = ndef.ndefMessage
-                    ndef.close()
-                    message?.records?.firstNotNullOfOrNull { parseTextRecord(it) }?.let { return it }
-                }
-            } catch (ignored: Exception) {
-                // fall through to serial number
-            }
-            return t.id.joinToString(":") { String.format("%02X", it) }
-        }
-        return null
-    }
+    </application>
 
-    /** Decodes a Well-Known TNF "T" (text) NDEF record per the NFC Forum spec. */
-    private fun parseTextRecord(record: NdefRecord): String? {
-        if (record.tnf != NdefRecord.TNF_WELL_KNOWN || !record.type.contentEquals(NdefRecord.RTD_TEXT)) {
-            return null
-        }
-        return try {
-            val payload = record.payload
-            val isUtf16 = (payload[0].toInt() and 0x80) != 0
-            val languageCodeLength = payload[0].toInt() and 0x3F
-            val charset = if (isUtf16) Charsets.UTF_16 else Charsets.UTF_8
-            String(payload, languageCodeLength + 1, payload.size - languageCodeLength - 1, charset).trim()
-        } catch (ignored: Exception) {
-            null
-        }
-    }
-}
+</manifest>
