@@ -10,7 +10,6 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.Ndef
-import android.nfc.tech.NfcA
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -31,13 +30,21 @@ import java.util.concurrent.Executors
  * Generic scanner screen. Launch with EXTRA_MODE = "PRODUCT" or "ESL".
  * Reads either a camera barcode (ML Kit, any format) or an NFC tag (most
  * Hanshow ESL price tags are NFC Forum Type 4 with an NDEF text record) —
- * whichever comes first wins. Returns the scanned value via EXTRA_RESULT.
+ * whichever comes first wins. Returns the scanned value via EXTRA_RESULT,
+ * and which method produced it via EXTRA_SOURCE (SOURCE_CAMERA / SOURCE_NFC
+ * / SOURCE_MANUAL) — the caller needs this because a camera-scanned ESL
+ * barcode still needs the get_esl_code() transform (see EslCode.kt) while
+ * an NFC read already returns the final ID directly.
  */
 class ScannerActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_MODE = "mode"
         const val EXTRA_RESULT = "result"
+        const val EXTRA_SOURCE = "source"
+        const val SOURCE_CAMERA = "CAMERA"
+        const val SOURCE_NFC = "NFC"
+        const val SOURCE_MANUAL = "MANUAL"
         private const val REQUEST_CAMERA = 100
     }
 
@@ -60,7 +67,7 @@ class ScannerActivity : AppCompatActivity() {
         binding.manualEntryButton.setOnClickListener {
             val value = binding.manualEntryField.text?.toString()?.trim()
             if (!value.isNullOrEmpty()) {
-                returnResult(value)
+                returnResult(value, SOURCE_MANUAL)
             } else {
                 Toast.makeText(this, "Введите код", Toast.LENGTH_SHORT).show()
             }
@@ -135,7 +142,7 @@ class ScannerActivity : AppCompatActivity() {
         val value = readNfcValue(intent, tag) ?: return
 
         alreadyHandled = true
-        returnResult(value)
+        returnResult(value, SOURCE_NFC)
     }
 
     /** Tries the NDEF text record first (what Hanshow ESL tags carry), falls back to the tag's serial number. */
@@ -230,7 +237,7 @@ class ScannerActivity : AppCompatActivity() {
                     val value = barcodes.firstOrNull()?.rawValue
                     if (value != null && !alreadyHandled) {
                         alreadyHandled = true
-                        runOnUiThread { returnResult(value) }
+                        runOnUiThread { returnResult(value, SOURCE_CAMERA) }
                     }
                 }
                 .addOnCompleteListener { imageProxy.close() }
@@ -239,8 +246,10 @@ class ScannerActivity : AppCompatActivity() {
         }
     }
 
-    private fun returnResult(value: String) {
-        val data = intent.putExtra(EXTRA_RESULT, value)
+    private fun returnResult(value: String, source: String) {
+        val data = intent
+            .putExtra(EXTRA_RESULT, value)
+            .putExtra(EXTRA_SOURCE, source)
         setResult(RESULT_OK, data)
         finish()
     }
