@@ -1,11 +1,14 @@
 package com.mrg.eslscanner.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.mrg.eslscanner.EslScannerApp
 import com.mrg.eslscanner.data.ConfigStore
 import com.mrg.eslscanner.data.OracleClient
 import com.mrg.eslscanner.data.OracleResult
@@ -78,6 +81,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         refreshUi()
+        showCrashLogIfAny()
+    }
+
+    /** If the previous run crashed, show the saved stack trace so it can be read/copied. */
+    private fun showCrashLogIfAny() {
+        val prefs = getSharedPreferences(EslScannerApp.PREFS_NAME, Context.MODE_PRIVATE)
+        val crash = prefs.getString(EslScannerApp.KEY_LAST_CRASH, null) ?: return
+        AlertDialog.Builder(this)
+            .setTitle("Приложение упало на прошлом запуске")
+            .setMessage(crash)
+            .setPositiveButton("Скопировать") { _, _ ->
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                clipboard.setPrimaryClip(android.content.ClipData.newPlainText("crash", crash))
+                Toast.makeText(this, "Скопировано", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Закрыть") { _, _ ->
+                prefs.edit().remove(EslScannerApp.KEY_LAST_CRASH).apply()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     override fun onResume() {
