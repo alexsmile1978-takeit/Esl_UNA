@@ -18,7 +18,14 @@ sealed class CodLookupResult {
 }
 
 /**
- * Thin wrapper around the Oracle JDBC (ojdbc8) driver.
+ * Thin wrapper around the Oracle JDBC driver (ojdbc6 — see app/build.gradle
+ * for why not ojdbc8).
+ *
+ * NOTE: catches Throwable, not just Exception. Loading an incompatible
+ * driver class on Android can throw an Error (NoClassDefFoundError,
+ * ExceptionInInitializerError, VerifyError), not an Exception — catching
+ * only Exception let those crash the whole app instead of showing a
+ * message here.
  *
  * Target table confirmed from the schema: UNIMARKET.YLIN_EPRICE_GOODS
  * (PK: MAG_COD + COD, plus ESL_BARCODE, UPDATETIME, STATUS, ...).
@@ -32,12 +39,10 @@ sealed class CodLookupResult {
  */
 class OracleClient(private val settings: OracleSettings) {
 
-    init {
+    private fun openConnection(): Connection {
         Class.forName("oracle.jdbc.OracleDriver")
+        return DriverManager.getConnection(settings.jdbcUrl(), settings.user, settings.password)
     }
-
-    private fun openConnection(): Connection =
-        DriverManager.getConnection(settings.jdbcUrl(), settings.user, settings.password)
 
     /** Quick connectivity check, used from the Settings screen. */
     suspend fun testConnection(): OracleResult = withContext(Dispatchers.IO) {
@@ -50,8 +55,8 @@ class OracleClient(private val settings: OracleSettings) {
                     }
                 }
             }
-        } catch (e: Exception) {
-            OracleResult.Failure(e.message ?: "Неизвестная ошибка подключения")
+        } catch (t: Throwable) {
+            OracleResult.Failure("${t.javaClass.simpleName}: ${t.message ?: "нет описания"}")
         }
     }
 
@@ -80,8 +85,8 @@ class OracleClient(private val settings: OracleSettings) {
                     }
                 }
             }
-        } catch (e: Exception) {
-            CodLookupResult.Failure(e.message ?: "Ошибка поиска товара по штрих-коду")
+        } catch (t: Throwable) {
+            CodLookupResult.Failure("${t.javaClass.simpleName}: ${t.message ?: "нет описания"}")
         }
     }
 
@@ -123,8 +128,8 @@ class OracleClient(private val settings: OracleSettings) {
                         OracleResult.Success("ESL_BARCODE обновлён (MAG_COD=$magCod, COD=$codInt)")
                     }
                 }
-            } catch (e: Exception) {
-                OracleResult.Failure(e.message ?: "Ошибка обновления записи")
+            } catch (t: Throwable) {
+                OracleResult.Failure("${t.javaClass.simpleName}: ${t.message ?: "нет описания"}")
             }
         }
 
@@ -147,8 +152,8 @@ class OracleClient(private val settings: OracleSettings) {
                     conn.commit()
                 }
                 OracleResult.Success("Выгрузка в ESL_WORK запущена")
-            } catch (e: Exception) {
-                OracleResult.Failure(e.message ?: "Ошибка вызова процедуры")
+            } catch (t: Throwable) {
+                OracleResult.Failure("${t.javaClass.simpleName}: ${t.message ?: "нет описания"}")
             }
         }
 
