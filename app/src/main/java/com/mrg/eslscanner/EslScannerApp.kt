@@ -7,7 +7,7 @@ import java.io.StringWriter
 /**
  * Captures crashes that normal try/catch(Exception) can't — Errors like
  * NoClassDefFoundError, VerifyError, ExceptionInInitializerError, which can
- * happen when a library (e.g. ojdbc8) references JVM classes missing on
+ * happen when a library (e.g. ojdbc) references JVM classes missing on
  * Android. Writes the full stack trace to SharedPreferences so it survives
  * the crash and can be shown on the next launch (see MainActivity).
  */
