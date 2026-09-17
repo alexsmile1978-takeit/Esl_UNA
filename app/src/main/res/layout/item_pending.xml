@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#FAFAFA">
+
+    <TextView android:id="@+id/productText" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:textStyle="bold" />
+    <TextView android:id="@+id/eslText" android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView android:id="@+id/statusText" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:textColor="#666666" android:textSize="12sp" />
+
+    <Button android:id="@+id/retryButton" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:text="Повторить"
+        style="?android:attr/buttonBarButtonStyle" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="#DDDDDD" android:layout_marginTop="8dp" />
+
+</LinearLayout>

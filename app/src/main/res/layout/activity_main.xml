@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ESL Scanner"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <View android:layout_width="match_parent" android:layout_height="16dp" />
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Код товара:" android:textStyle="bold" />
+    <TextView android:id="@+id/productValue" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:textSize="18sp" android:padding="8dp"
+        android:background="#EEEEEE" android:layout_marginBottom="8dp" />
+    <Button android:id="@+id/scanProductButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Сканировать товар" />
+
+    <View android:layout_width="match_parent" android:layout_height="16dp" />
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Код ценника (ESL):" android:textStyle="bold" />
+    <TextView android:id="@+id/eslValue" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:textSize="18sp" android:padding="8dp"
+        android:background="#EEEEEE" android:layout_marginBottom="8dp" />
+    <Button android:id="@+id/scanEslButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Сканировать ценник" />
+
+    <View android:layout_width="match_parent" android:layout_height="24dp" />
+
+    <Button android:id="@+id/sendButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Отправить в Oracle"
+        android:enabled="false" />
+
+    <Button android:id="@+id/clearButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Очистить" style="?android:attr/buttonBarButtonStyle" />
+
+    <TextView android:id="@+id/statusText" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="8dp"
+        android:textColor="#444444" />
+
+    <View android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/pendingButton" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="Очередь" />
+        <Button android:id="@+id/settingsButton" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="Настройки" />
+    </LinearLayout>
+
+</LinearLayout>

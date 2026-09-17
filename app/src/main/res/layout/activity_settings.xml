@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Подключение к Oracle" android:textSize="20sp" android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <EditText android:id="@+id/hostField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Host (IP или имя сервера)" />
+    <EditText android:id="@+id/portField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Port" android:inputType="number"
+        android:text="1521" />
+    <EditText android:id="@+id/serviceField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Service name / SID" />
+    <EditText android:id="@+id/userField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Пользователь БД" />
+    <EditText android:id="@+id/passwordField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Пароль"
+        android:inputType="textPassword" />
+    <EditText android:id="@+id/storeCodeField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="MAG_COD (код магазина)"
+        android:inputType="number" />
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Таблица ESL / статус выгрузки" android:textStyle="bold"
+        android:layout_marginTop="16dp" />
+    <EditText android:id="@+id/eslGoodsTableField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Таблица (MAG_COD/COD/ESL_BARCODE)"
+        android:text="UNIMARKET.YLIN_EPRICE_GOODS" />
+    <EditText android:id="@+id/newStatusField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Значение STATUS для выгрузки"
+        android:text="NEW" />
+    <EditText android:id="@+id/uploadProcField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Процедура выгрузки (PACKAGE.PROC)"
+        android:text="PRISMART_API_SEND_NEW.PUSH_TO_ESL_WORK" />
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Справочник товаров (штрих-код → COD)" android:textStyle="bold"
+        android:layout_marginTop="16dp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Оставь пустым, если отсканированный код товара — это уже COD"
+        android:textColor="#777777" android:textSize="12sp" android:layout_marginBottom="6dp" />
+    <EditText android:id="@+id/lookupTableField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Таблица справочника товаров" />
+    <EditText android:id="@+id/lookupBarcodeColField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Колонка со штрих-кодом товара" />
+    <EditText android:id="@+id/lookupCodColField" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Колонка с COD" />
+
+    <View android:layout_width="match_parent" android:layout_height="20dp" />
+
+    <Button android:id="@+id/testButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Проверить подключение" />
+    <Button android:id="@+id/saveButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Сохранить" />
+
+    <TextView android:id="@+id/statusText" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="8dp" />
+
+</LinearLayout>
+</ScrollView>
