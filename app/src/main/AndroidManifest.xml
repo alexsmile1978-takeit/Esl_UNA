@@ -30,3 +30,8 @@
             android:exported="false"
             android:launchMode="singleTop" />
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
+        <activity android:name=".ui.PendingActivity" android:exported="false" />
+
+    </application>
+
+</manifest>
