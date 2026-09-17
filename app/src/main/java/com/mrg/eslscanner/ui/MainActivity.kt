@@ -12,6 +12,7 @@ import com.mrg.eslscanner.EslScannerApp
 import com.mrg.eslscanner.data.ConfigStore
 import com.mrg.eslscanner.data.OracleClient
 import com.mrg.eslscanner.data.OracleResult
+import com.mrg.eslscanner.data.eslCodeFromBarcode
 import com.mrg.eslscanner.databinding.ActivityMainBinding
 import com.mrg.eslscanner.db.AppDatabase
 import com.mrg.eslscanner.db.PendingScan
@@ -38,7 +39,23 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            eslBarcode = result.data?.getStringExtra(ScannerActivity.EXTRA_RESULT)
+            val rawValue = result.data?.getStringExtra(ScannerActivity.EXTRA_RESULT)
+            val source = result.data?.getStringExtra(ScannerActivity.EXTRA_SOURCE)
+            eslBarcode = if (rawValue != null && source == ScannerActivity.SOURCE_CAMERA) {
+                // Camera reads the printed barcode, which needs the get_esl_code()
+                // transform to match the ID format the tag's NFC chip reports directly.
+                val converted = eslCodeFromBarcode(rawValue)
+                if (converted == null) {
+                    Toast.makeText(
+                        this,
+                        "Не удалось преобразовать штрих-код в ESL ID, использую как есть",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                converted ?: rawValue
+            } else {
+                rawValue
+            }
             refreshUi()
         }
     }
