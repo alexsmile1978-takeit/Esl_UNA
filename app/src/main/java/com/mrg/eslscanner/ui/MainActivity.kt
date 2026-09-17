@@ -2,7 +2,10 @@ package com.mrg.eslscanner.ui
 
 import android.content.Context
 import android.content.Intent
+import android.nfc.NfcAdapter
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -123,6 +126,37 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refreshUi()
+        checkNfcEnabled()
+    }
+
+    /**
+     * Android doesn't let apps toggle NFC on/off silently (security restriction
+     * since 4.4) — the best an app can do is detect it's off and hand the user
+     * straight to the system control for it. Settings.Panel.ACTION_NFC (API 29+)
+     * shows a small overlay panel to flip it on without leaving the app; older
+     * versions fall back to the full NFC settings screen.
+     */
+    private fun checkNfcEnabled() {
+        val adapter = NfcAdapter.getDefaultAdapter(this) ?: return // device has no NFC hardware
+        if (adapter.isEnabled) return
+
+        AlertDialog.Builder(this)
+            .setTitle("Включите NFC")
+            .setMessage("NFC выключен. Для сканирования ценников по NFC его нужно включить в настройках телефона.")
+            .setPositiveButton("Включить") { _, _ ->
+                val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    Intent(Settings.Panel.ACTION_NFC)
+                } else {
+                    Intent(Settings.ACTION_NFC_SETTINGS)
+                }
+                try {
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Не удалось открыть настройки NFC", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Позже", null)
+            .show()
     }
 
     private fun refreshUi() {
