@@ -7,15 +7,16 @@ import androidx.security.crypto.MasterKey
 /**
  * Holds the Oracle connection settings and the table/procedure names used to
  * assign an ESL barcode to a product and trigger the upload to ESL_WORK.
- * All of this is editable from the Settings screen so nothing is hardcoded.
+ * All of this is editable from the Settings screen; the values below are
+ * pre-filled defaults for the real MRG/Linella environment.
  */
 data class OracleSettings(
-    val host: String = "",
+    val host: String = "192.168.0.40",
     val port: String = "1521",
-    val serviceName: String = "",       // e.g. UNIMARKET / CEN510 service or SID
-    val user: String = "",
-    val password: String = "",
-    val storeCode: String = "",         // MAG_COD
+    val serviceName: String = "uniback",   // e.g. UNIMARKET / CEN510 service or SID
+    val user: String = "unimarket",
+    val password: String = "unimarket",
+    val storeCode: String = "122",         // MAG_COD
 
     // The real table confirmed from the schema: UNIMARKET.YLIN_EPRICE_GOODS
     // Composite key MAG_COD + COD already exists per store/product, so we
@@ -60,22 +61,23 @@ class ConfigStore(context: Context) {
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    fun load(): OracleSettings = OracleSettings(
-        host = prefs.getString("host", "") ?: "",
-        port = prefs.getString("port", "1521") ?: "1521",
-        serviceName = prefs.getString("service", "") ?: "",
-        user = prefs.getString("user", "") ?: "",
-        password = prefs.getString("password", "") ?: "",
-        storeCode = prefs.getString("store_code", "") ?: "",
-        eslGoodsTable = prefs.getString("esl_goods_table", "UNIMARKET.YLIN_EPRICE_GOODS")
-            ?: "UNIMARKET.YLIN_EPRICE_GOODS",
-        newStatusValue = prefs.getString("new_status_value", "NEW") ?: "NEW",
-        productLookupTable = prefs.getString("lookup_table", "") ?: "",
-        productLookupBarcodeColumn = prefs.getString("lookup_barcode_col", "") ?: "",
-        productLookupCodColumn = prefs.getString("lookup_cod_col", "") ?: "",
-        uploadProcedure = prefs.getString("upload_proc", "PRISMART_API_SEND_NEW.PUSH_TO_ESL_WORK")
-            ?: "PRISMART_API_SEND_NEW.PUSH_TO_ESL_WORK"
-    )
+    fun load(): OracleSettings {
+        val defaults = OracleSettings()
+        return OracleSettings(
+            host = prefs.getString("host", defaults.host) ?: defaults.host,
+            port = prefs.getString("port", defaults.port) ?: defaults.port,
+            serviceName = prefs.getString("service", defaults.serviceName) ?: defaults.serviceName,
+            user = prefs.getString("user", defaults.user) ?: defaults.user,
+            password = prefs.getString("password", defaults.password) ?: defaults.password,
+            storeCode = prefs.getString("store_code", defaults.storeCode) ?: defaults.storeCode,
+            eslGoodsTable = prefs.getString("esl_goods_table", defaults.eslGoodsTable) ?: defaults.eslGoodsTable,
+            newStatusValue = prefs.getString("new_status_value", defaults.newStatusValue) ?: defaults.newStatusValue,
+            productLookupTable = prefs.getString("lookup_table", "") ?: "",
+            productLookupBarcodeColumn = prefs.getString("lookup_barcode_col", "") ?: "",
+            productLookupCodColumn = prefs.getString("lookup_cod_col", "") ?: "",
+            uploadProcedure = prefs.getString("upload_proc", defaults.uploadProcedure) ?: defaults.uploadProcedure
+        )
+    }
 
     fun save(settings: OracleSettings) {
         prefs.edit()
