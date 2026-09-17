@@ -1,11 +1,85 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace 'com.mrg.eslscanner'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.mrg.eslscanner"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    packagingOptions {
+        // ojdbc8 bundles some duplicate license/meta files
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+        }
     }
 }
 
-plugins {
-    id 'com.android.application' version '8.5.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.9.24' apply false
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+
+    // CameraX for barcode scanning
+    def camerax_version = "1.3.4"
+    implementation "androidx.camera:camera-core:$camerax_version"
+    implementation "androidx.camera:camera-camera2:$camerax_version"
+    implementation "androidx.camera:camera-lifecycle:$camerax_version"
+    implementation "androidx.camera:camera-view:$camerax_version"
+
+    // ML Kit barcode scanning (on-device, offline)
+    implementation 'com.google.mlkit:barcode-scanning:17.3.0'
+
+    // Oracle JDBC driver — using the OLDER ojdbc6 (JDBC 4.0, targets Java 6/7/8)
+    // instead of ojdbc8: ojdbc8's static initializer references
+    // java.sql.DriverAction, a Java 8 class Android's runtime never
+    // implemented, which crashes the app with NoClassDefFoundError before a
+    // connection is even attempted. ojdbc6 predates that API and doesn't
+    // reference it. Excluding its optional wallet/pooling sub-dependencies,
+    // which aren't needed for a plain thin connection.
+    implementation('com.oracle.database.jdbc:ojdbc6:11.2.0.4') {
+        exclude group: 'com.oracle.database.jdbc', module: 'ucp'
+        exclude group: 'com.oracle.database.security', module: 'oraclepki'
+        exclude group: 'com.oracle.database.security', module: 'osdt_cert'
+        exclude group: 'com.oracle.database.security', module: 'osdt_core'
+    }
+
+    // Coroutines for background DB work
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+
+    // Room for local offline queue (pending scans not yet sent to Oracle)
+    def room_version = "2.6.1"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
 }
